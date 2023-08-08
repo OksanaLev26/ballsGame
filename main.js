@@ -1,10 +1,15 @@
 const canvas = document.getElementById('canvas');
-const addButton = document.getElementById('addBall');
+const startButton = document.getElementById('start');
 const stopButton = document.getElementById('stop');
-const balls = [];
-const intervalId = 0;
+const gameButton = document.getElementById('game');
+const levelTitle = document.getElementById('level');
+let balls = [];
+let intervalId = 0;
+let startTime = null;
+let endTime = null;
 let removedBall = 0;
 let ballId = 0;
+let level = 1;
 const BALL_SIZE = 100;
 const canvasWidth = parseFloat(window.getComputedStyle(this.canvas).width);
 const canvasHeigth = parseFloat(window.getComputedStyle(this.canvas).height);
@@ -25,37 +30,74 @@ class Ball {
         this.ball.style.left = this.left + 'px';
         this.ball.style.width = BALL_SIZE + 'px';
         this.ball.style.height = BALL_SIZE + 'px';
+        this.balls = [];
+    }
+
+    changeDirection(id) {
+        
+        const ballLeft = parseFloat(window.getComputedStyle(this.ball).left);
+        const ballTop = parseFloat(window.getComputedStyle(this.ball).top);
+       
+        if (ballLeft >= canvasWidth - BALL_SIZE) {
+            this.horizontalDirection = 'LEFT';
+        } else if (ballLeft <= 0) {
+            this.horizontalDirection = 'RIGHT';
+        }
+
+        if (ballTop >= canvasHeigth - BALL_SIZE) {
+            this.verticalDirection = 'TOP';
+        } else if (ballTop <= 0) {
+            this.verticalDirection = 'BOTTOM';
+        }
+
+        
+    }
+
+    toggleDirection() {
+        this.horizontalDirection === 'LEFT' ?
+            this.horizontalDirection = 'RIGHT' :
+            this.horizontalDirection = 'LEFT';
+
+        this.verticalDirection === 'TOP' ?
+            this.verticalDirection = 'BOTTOM' :
+            this.verticalDirection = 'TOP';
     }
 
     currentColor() {
         this.ball.style.backgroundColor = this.color;
     }
 
-    removeBall(id) {
-        const ballToRemove = document.getElementById(id);
-        ballToRemove.remove();
+    removeBall() {
+        this.ball.remove();
     }
 
-    clickBall(ball) {
-        const handleBallClick = () => {
-            console.log('click', ball)
-                if (ball.color === 'green') {
-                    ball.removeBall(ball.id);
+    move() {
+        this.currentColor();
+        this.changeDirection();
+        
+        const ballLeft = parseFloat(window.getComputedStyle(this.ball).left);
+        const ballTop = parseFloat(window.getComputedStyle(this.ball).top);
+        let updatedBallLeft = 0;
+        let updatedBallTop = 0;
 
-                    removeBallFromArray(ball.id);
-                    removedBall++;
-
-                    if (!checkGreenColor()) {
-                        changeColor();
-                    }
-
-                    checkBallsLength();
-                } 
-                else if (ball.color === 'red') {
-                    addBall(2);
-                }
+        if (this.horizontalDirection === 'RIGHT') {
+            this.ball.style.left = `${ballLeft + this.speedX}px`;
+            updatedBallLeft = ballLeft + this.speedX;
+        } else {
+            this.ball.style.left = `${ballLeft - this.speedX}px`;
+            updatedBallLeft = ballLeft - this.speedX
         }
-        this.ball.addEventListener('click', handleBallClick);
+
+        if (this.verticalDirection === 'BOTTOM') {
+            this.ball.style.top = `${ballTop + this.speedY}px`;
+            updatedBallTop = ballTop + this.speedY;
+        } else {
+            this.ball.style.top = `${ballTop - this.speedY}px`;
+            updatedBallTop = ballTop - this.speedY;
+        }
+
+        this.left = updatedBallLeft;
+        this.top = updatedBallTop
     }
 }
 
@@ -65,18 +107,17 @@ const removeBallFromArray = (id) => {
             balls.splice(i, 1);
         }
     }
-    console.log('balls', balls)
 }
 
 const checkGreenColor = () => {
-    for (let i = 0; i < balls.length; i++) {
-       return balls[i].color === 'green' ? true : false
-    }
+    return balls.some((ball) => ball.color === 'green');
 }
 
 const getMinutes = (millisec) => {
-    const minutes = Math.floor(millisec / 60000);
-    const seconds = ((millisec % 60000) / 1000).toFixed(0);
+    let seconds = Math.floor(millisec / 1000);
+    let minutes = Math.floor(seconds / 60);
+    seconds %= 60;
+
     return minutes + ':' + seconds;
 }
 
@@ -93,32 +134,73 @@ const changeColor = () => {
     });
 }
 
+const startGame = () => {
+    balls = [];
+    canvas.innerHTML = null;
+    console.log('level', level)
+    levelTitle.textContent = `Level ${level}`;
+
+    level > 1 ? addBall(15 + 5) : addBall(15);
+    
+    startTime = Date.now();
+    if (!intervalId) {
+        intervalId = setInterval(() => {
+            balls.forEach((ball, index) => {
+
+                ball.move(ball.id, balls);
+                for (let i = 0; i < balls.length; i++) {
+
+                    if (i !== index) {
+                        let distanse = calcDistanse(ball.left, ball.top, balls[i].left, balls[i].top);
+
+                        if (distanse < 101) {
+                            ball.toggleDirection();
+                            break;
+                        }
+                    }
+                }
+            });
+        }, 32);
+    }
+}
+
 const checkBallsLength = () => {
     if (balls.length === 0) {
         endTime = Date.now();
         alert(`You removed ${removedBall} balls. You spent ${getMinutes(endTime - startTime)} on it.`);
         reset();
+        clearInterval(intervalId);
+        intervalId = null;
+        if (level < 10) {
+            const message = prompt('Do you want to continue playing?');
+        if (message && message.toLowerCase() === "y") {
+            level++;
+            startGame();
+          } else if (message && message.toLowerCase() === "n" || !message) {
+            alert('The game is over. If you want to play more press START button');
+            level = 1;
+          }
+        }
     }
 }
 
 const calcDistanse = (left1, top1, left2, top2) => {
-    var x1 = left1 ;
-    var x2 = left2 ;
+    var x1 = left1;
+    var x2 = left2;
     var y1 = top1;
-    var y2 = top2 ;
+    var y2 = top2;
     return Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2))
 }
 
 const checkDistanse = (left, top) => {
-    let x1 = left + BALL_SIZE;
-    let y1 = top + BALL_SIZE;
+    let x1 = left;
+    let y1 = top;
     let x2 = null;
     let y2 = null;
         for (let i = 0; i < balls.length; i++) {
-            x2 = balls[i].left + BALL_SIZE;
-            y2 = balls[i].top + BALL_SIZE;
+            x2 = balls[i].left ;
+            y2 = balls[i].top ;
             const carrentDistanse = calcDistanse(x1, y1, x2, y2);
-            console.log('carrentDistanse', carrentDistanse)
             if (carrentDistanse < BALL_SIZE) {
                 return false;
             }
@@ -127,7 +209,6 @@ const checkDistanse = (left, top) => {
 }
 
 const addBall = (num) => {    
-    startTime = Date.now();
         const colorClass = Math.random() < 0.5 ? 'green' : 'red';
         const ball = document.createElement('div');
         ball.classList.add('ball', `${colorClass}`);
@@ -139,9 +220,23 @@ const addBall = (num) => {
             ballId++;
             newBall.color = colorClass;
             balls.push(newBall);
-            console.log('balls', balls)
             num--;
-            newBall.clickBall(newBall);
+            const handleBallClick = () => {
+                if (newBall.color === 'green') {
+                    newBall.removeBall();
+
+                    removeBallFromArray(newBall.id);
+                    removedBall++;
+
+                    if (!checkGreenColor()) {
+                        changeColor();
+                    }
+                    checkBallsLength();
+                } else if (newBall.color === 'red') {
+                    addBall(2);
+                }
+            }
+            ball.addEventListener('click', handleBallClick);
     }
 
     if (num <= 0) {
@@ -150,13 +245,38 @@ const addBall = (num) => {
         addBall(num);
 }
 
-const handleAddButtonClick = () => {
-    addBall(1);
-}
-addButton.addEventListener('click', handleAddButtonClick);
-
 const handleStopButtonClick = () => {
     clearInterval(intervalId);
     intervalId = null;
 }
 stopButton.addEventListener('click', handleStopButtonClick);
+
+const handleStartClick = () => {
+    if (!intervalId) {
+        intervalId = setInterval(() => {
+            balls.forEach((ball, index) => {
+
+                ball.move(ball.id, balls);
+                for (let i = 0; i < balls.length; i++) {
+
+                    if (i !== index) {
+                        let distanse = calcDistanse(ball.left, ball.top, balls[i].left, balls[i].top);
+
+                        if (distanse < 101) {
+                            ball.toggleDirection();
+                            break;
+                        }
+                    }
+                }
+            });
+        }, 32);
+    }
+}
+
+startButton.addEventListener('click', handleStartClick);
+
+const handleGameClick = () => {
+    startGame();
+}
+
+gameButton.addEventListener('click', handleGameClick);
