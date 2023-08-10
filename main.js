@@ -1,15 +1,20 @@
 const canvas = document.getElementById('canvas');
-const startButton = document.getElementById('start');
-const stopButton = document.getElementById('stop');
+const continueButton = document.getElementById('continue');
+const pauseButton = document.getElementById('pause');
 const gameButton = document.getElementById('game');
 const levelTitle = document.getElementById('level');
+const score = document.getElementById('score');
+const time = document.getElementById('time');
 let balls = [];
 let intervalId = 0;
 let startTime = null;
 let endTime = null;
+let allGameTime = null;
 let removedBall = 0;
+let allRemovedBalls = 0;
 let ballId = 0;
 let level = 1;
+let currentBallsNumber = 5;
 const BALL_SIZE = 100;
 const canvasWidth = parseFloat(window.getComputedStyle(this.canvas).width);
 const canvasHeigth = parseFloat(window.getComputedStyle(this.canvas).height);
@@ -30,10 +35,9 @@ class Ball {
         this.ball.style.left = this.left + 'px';
         this.ball.style.width = BALL_SIZE + 'px';
         this.ball.style.height = BALL_SIZE + 'px';
-        this.balls = [];
     }
 
-    changeDirection(id) {
+    changeDirection() {
         
         const ballLeft = parseFloat(window.getComputedStyle(this.ball).left);
         const ballTop = parseFloat(window.getComputedStyle(this.ball).top);
@@ -110,15 +114,16 @@ const removeBallFromArray = (id) => {
 }
 
 const checkGreenColor = () => {
-    return balls.some((ball) => ball.color === 'green');
+    return balls.some((ball) => ball.color === 'lime');
 }
 
 const getMinutes = (millisec) => {
     let seconds = Math.floor(millisec / 1000);
     let minutes = Math.floor(seconds / 60);
     seconds %= 60;
+    allGameTime += millisec;
 
-    return minutes + ':' + seconds;
+    return minutes + 'min' + seconds + 'sec';
 }
 
 const reset = () => {
@@ -130,17 +135,16 @@ const reset = () => {
 
 const changeColor = () => {
     balls.forEach((ball) => {
-        ball.color = 'green';
+        ball.color = 'lime';
+        ball.ball.classList.add('bubble');
     });
 }
 
 const startGame = () => {
     balls = [];
     canvas.innerHTML = null;
-    console.log('level', level)
     levelTitle.textContent = `Level ${level}`;
-
-    level > 1 ? addBall(15 + 5) : addBall(15);
+    addBall(currentBallsNumber);
     
     startTime = Date.now();
     if (!intervalId) {
@@ -171,15 +175,26 @@ const checkBallsLength = () => {
         reset();
         clearInterval(intervalId);
         intervalId = null;
-        if (level < 10) {
-            const message = prompt('Do you want to continue playing?');
-        if (message && message.toLowerCase() === "y") {
+        if (level < 5) {
+            const message = prompt('The game is over. Do you want to continue playing?');
             level++;
+            currentBallsNumber += 5;
+        if (message && message.toLowerCase() === "y") {
             startGame();
           } else if (message && message.toLowerCase() === "n" || !message) {
-            alert('The game is over. If you want to play more press START button');
-            level = 1;
+            alert('If you want to play more press START button');
           }
+        } else {
+            const message = prompt(`Game is over! You removed ${allRemovedBalls} balls. You spent ${getMinutes(allGameTime)}
+             on it. Do you want to start a new game?`);
+            level = 1;
+            levelTitle.textContent = `Level ${level}`;
+            currentBallsNumber = 5;
+            if (message && message.toLowerCase() === "y") {
+                startGame();
+              } else if (message && message.toLowerCase() === "n" || !message) {
+                alert('If you want to play more press START button');
+              }
         }
     }
 }
@@ -209,9 +224,13 @@ const checkDistanse = (left, top) => {
 }
 
 const addBall = (num) => {    
-        const colorClass = Math.random() < 0.5 ? 'green' : 'red';
+        const colorClass = Math.random() < 0.5 ? 'lime' : 'deeppink';
         const ball = document.createElement('div');
-        ball.classList.add('ball', `${colorClass}`);
+        if (colorClass === 'lime') {
+            ball.classList.add('ball', 'bubble');
+        } else {
+            ball.classList.add('ball');
+        }
         const newBall = new Ball(ball, canvas, ballId);  
         ball.id = ballId;
 
@@ -222,17 +241,18 @@ const addBall = (num) => {
             balls.push(newBall);
             num--;
             const handleBallClick = () => {
-                if (newBall.color === 'green') {
+                if (newBall.color === 'lime') {
                     newBall.removeBall();
 
                     removeBallFromArray(newBall.id);
                     removedBall++;
+                    allRemovedBalls++;
 
                     if (!checkGreenColor()) {
                         changeColor();
-                    }
+                    }   
                     checkBallsLength();
-                } else if (newBall.color === 'red') {
+                } else if (newBall.color === 'deeppink') {
                     addBall(2);
                 }
             }
@@ -245,13 +265,33 @@ const addBall = (num) => {
         addBall(num);
 }
 
-const handleStopButtonClick = () => {
-    clearInterval(intervalId);
-    intervalId = null;
-}
-stopButton.addEventListener('click', handleStopButtonClick);
+const handlePauseButtonClick = () => {
+    if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+    } else {
+        intervalId = setInterval(() => {
+            balls.forEach((ball, index) => {
 
-const handleStartClick = () => {
+                ball.move(ball.id, balls);
+                for (let i = 0; i < balls.length; i++) {
+
+                    if (i !== index) {
+                        let distanse = calcDistanse(ball.left, ball.top, balls[i].left, balls[i].top);
+
+                        if (distanse < 101) {
+                            ball.toggleDirection();
+                            break;
+                        }
+                    }
+                }
+            });
+        }, 32);
+    }
+}
+pauseButton.addEventListener('click', handlePauseButtonClick);
+
+const handleContinuetClick = () => {
     if (!intervalId) {
         intervalId = setInterval(() => {
             balls.forEach((ball, index) => {
@@ -273,7 +313,7 @@ const handleStartClick = () => {
     }
 }
 
-startButton.addEventListener('click', handleStartClick);
+continueButton.addEventListener('click', handleContinuetClick);
 
 const handleGameClick = () => {
     startGame();

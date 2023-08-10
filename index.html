@@ -9,15 +9,21 @@
 </head>
 <body>
     <div class="main">
-        <div class="row">
-            <div id="level"></div>
-            <button id="start">Continue</button>
-            <button id="stop">Pause</button>
-            <button id="game">Game</button>
+        <div id="title">
+            <div id="score">Your score: 0</div>
+            <div id="level">Level 1</div>
+            <div id="time">Total time: 0 min 0 sec</div>
         </div>
-        <div class="row">
-            <div id = 'canvas'></div>
+        <div id = 'canvas'></div>
+        <div class="buttons">
+            <div id="game" class="button">Start</div>
+            <div id="continue" class="button">Continue</div>
+            <div id="pause" class="button">
+                <div class="pause right"></div>
+                <div class="pause left"></div>
+            </div>
         </div>
+            
     </div>
 </body>
 </html>
