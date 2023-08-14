@@ -83,7 +83,7 @@ button {
   display: block;
   cursor: pointer;
 }
-@keyframes fade-out {
+@keyframes appearance {
   from {
       opacity: 0;
  }
@@ -92,7 +92,7 @@ button {
  }
 }
 .ball {
-  animation: fade-out 3000ms;
+  animation: appearance 3000ms;
 }
 @keyframes bubble-anim {
   0% {
@@ -139,18 +139,9 @@ button {
   z-index: 2;
   transform: rotateZ(-30deg);
 }
-.ball .shadow {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.1) 40%, rgba(0, 0, 0, 0) 50%);
-  transform: rotateX(90deg) translateZ(-160px);
-  z-index: 1;
-}
 .ball.bubble {
   background: radial-gradient(circle at 50% 55%, rgba(240, 245, 255, 0.9), rgba(240, 245, 255, 0.9) 40%, rgba(225, 238, 255, 0.8) 60%, rgba(43, 130, 255, 0.4));
-  animation: bubble-anim 2s ease-out infinite, fade-out 3000ms;
-  ;
+  animation: bubble-anim 2s ease-out infinite, appearance 3000ms;
 }
 .ball.bubble:before {
   filter: blur(0);
