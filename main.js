@@ -303,6 +303,7 @@ const handlePauseButtonClick = () => {
         }, 32);
     }
 };
+
 pauseButton.addEventListener("click", handlePauseButtonClick);
 
 const handleGameClick = () => {
