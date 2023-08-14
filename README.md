@@ -36,8 +36,7 @@ Gameplay:
 
 Built with:
 
-The "Pop the Ball" game was crafted using a combination of HTML, CSS, and JavaScript technologies. This trio of tools synergized to 
-create an engaging and interactive gaming experience.
+The "Pop the Ball" game was crafted using a combination of HTML, CSS, and JavaScript technologies.
 
 How the Game Was Built:
 
