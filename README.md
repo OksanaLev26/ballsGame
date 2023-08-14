@@ -8,7 +8,9 @@ each positioned randomly and moving in unpredictable directions. These balls com
 balls to pop them and earn points. However, be prepared for a twist with the pink balls – clicking on them will spawn two additional balls
 of varying colors. Should you need a breather, the pause button is at your disposal. When you're ready to dive back in, hit continue and
 the game will seamlessly pick up where you left off. Successfully pop all the balls to complete the level, and your performance will be 
-summarized in terms of balls popped and total time taken.
+summarized in terms of balls popped and total time taken. 
+
+Link to live site: https://oksanalev26.github.io/ballsGame
 
 Gameplay:
 
@@ -57,7 +59,7 @@ Functionality Phase:
    qualities.
 
 2. Collision Detection: Balls needed to react intelligently to their environment. Functions were implemented to manage ball direction
-   changes when they collided with the playing field's edges or each other. This realism added depth to the gameplay.
+   changes when they collided with the playing field's edges or each other.
 
 3. Game Logic: Clicking on a green ball triggered its "popping," with the ball being removed from the game. Functions were created to
    enable this action, maintaining the game's internal state and score.
@@ -70,7 +72,4 @@ Functionality Phase:
 
 6. Game Completion: A function was devised to determine if the game had reached its conclusion. This enabled the game to detect when
    all balls had been popped, leading to level completion and result display.
-
-7. Additional Features: Distances between balls were calculated using specific functions, adding a layer of complexity to the gameplay
-   and enhancing the overall experience.
 
