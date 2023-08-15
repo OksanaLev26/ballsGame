@@ -21,7 +21,7 @@ Gameplay:
 5. Interactions:
    - Click on a green ball to pop it and earn points.
    - Click on a pink ball to trigger a surprise – it will spawn two additional balls of random colors.
-   - When only pink balls remain, popping any of them will turn all pink balls green, allowing you to pop them too.
+   - When only pink balls remain, they will turn to green, allowing you to pop them too.
 6. Pause and Continue: Hit the pause button to temporarily halt the game. Resume the action by pressing the continue button.
 7. Completing Levels: Successfully pop all balls to complete the level and advance to the next one.
 8. End of Level:
